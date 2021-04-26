@@ -1,19 +1,34 @@
 {
   "name": "proyecto-3",
   "version": "1.0.0",
-  "description": "",
+  "description": "Proyecto 3 de Acamica - aprendiendo backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ROMANOMATMAX/proyecto-3.git"
   },
-  "author": "",
+  "author": "Matias Romano",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ROMANOMATMAX/proyecto-3/issues"
   },
-  "homepage": "https://github.com/ROMANOMATMAX/proyecto-3#readme"
+  "homepage": "https://github.com/ROMANOMATMAX/proyecto-3#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-handlebars": "^5.3.0",
+    "express-mysql-session": "^2.1.5",
+    "express-session": "^1.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
 }

@@ -1,0 +1,1 @@
+//Manejara algunas funciones de handlebars quien no maneja codigo asi directamente

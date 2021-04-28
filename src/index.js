@@ -9,7 +9,9 @@ const app = express();
 
 
 //Settings
+app.set('orderId', 10)
 app.set('orderCreated', false);
+app.set('userId', 0)
 app.set('pkg', pkg);
 app.set('port', process.env.PORT || 3050);
 app.set('views', path.join(__dirname, 'views'));

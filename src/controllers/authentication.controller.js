@@ -4,8 +4,17 @@ const pool = require('../database');//Exporto la conexion con la DB para poder h
 require('dotenv').config();
 
 
+/******Funcion que permite acceder a todos los usuarios registrados solo disponible para admin*****/
+const showAllUsers = async (req, res) => {
+    const users = await pool.query('SELECT * FROM users');
 
-/******Funcion para añadir un nuevo user a la DB y otorgarle su token (Ojo falta verificar que no exista ya el usuario)***/
+    res.json({
+        users
+    })
+}
+
+
+/******Funcion para añadir un nuevo user a la DB y otorgarle su token*****/
 const addNewUser = async (req, res) => {
 
     const { id, username, fullname, email, phone, address, password, token, role } = req.body; //Destructuring a los datos enviados en el body del request
@@ -69,11 +78,6 @@ const addNewUser = async (req, res) => {
 }
 
 
-/**********Funcion para el metodo mas simple el ad ***********/
-const showRegisterForm = (req, res) => {
-    res.render('user/register');
-}
-
 
 /********Funcion para logear un usuario ya existente*********/
 const checkUserProvided = async (req, res) => {
@@ -116,6 +120,6 @@ const checkUserProvided = async (req, res) => {
 
 module.exports= {
     addNewUser,
-    showRegisterForm,
-    checkUserProvided
+    checkUserProvided,
+    showAllUsers
 }

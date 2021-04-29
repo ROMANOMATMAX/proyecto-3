@@ -21,6 +21,27 @@ helper.verifyToken = (token) => {
     return decoded.id;
 }
 
+helper.findCoincidenceProducts = (list, itemId) => {
+    let match = false;
+    list.forEach(item => {
+        if(item.product_id === itemId) {
+            match = true;
+            return match;
+        }
+    });
+    return match;
+}
+
+helper.findCoincidenceOrders = (list, itemId) => {
+    let match = false;
+    list.forEach(item => {
+        if(item.id === itemId) {
+            match = true;
+            return match;
+        }
+    });
+    return match;
+}
 
 module.exports = helper;
 

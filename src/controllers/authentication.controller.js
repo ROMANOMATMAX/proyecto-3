@@ -83,39 +83,81 @@ const addNewUser = async (req, res) => {
 const checkUserProvided = async (req, res) => {
     
     const {email, password} = req.body; //Destructuring a los datos enviados en el body del request
+    //validar que viene un body
+    const body = req.body;
+    console.log(body);
+    console.log(Object.keys(body)); //Con esto estoy obteniendo los nombres de las propiedades del body que estoy enviando. Deberian estar si o si mail y password
+    console.log(Object.keys(body).length);
+
+    if(Object.keys(body).length === 0) {
+        return res.status(400).json({message: 'No body provided'})
+    }else {
+        let sentProperties = Object.keys(body);
+        let emailReceived = false;
+        let passwordReceived = false;
+
+        sentProperties.forEach(key => {
+            if(key === 'email') emailReceived = true;
+            if(key === 'password') passwordReceived = true;
+        });
+
+        if(!emailReceived && !passwordReceived) {
+            return res.status(400).json({
+                message: 'Please provide email and password in body request'
+            })
+        }else if(!emailReceived) {
+            return res.status(400).json({
+                message: 'No email provided'
+            })
+        }else if(!passwordReceived) {
+            return res.status(400).json({
+                message: 'No password provided'
+            })
+        }
+    }
+    //validar que en el body las propiedades vienen con contenido
+
 
     //Verifico si el email corresponde a un usuario registrado
-    let rows = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    console.log(rows.length);
-    if(rows.length > 0) { //Hubo coincidencia por lo que el email corresponde a un usuario registrado
-        const userFound = rows[0];
-        console.log(userFound);
-        //El password de userFound esta cifrado por que asi se guardo en la DB debo mediante bcrypt compararlo con el pass que introdujó el usuario
-        const passwordValid = await bcrypt.compare(password, userFound.password);
-        //Chequeamos si el password del usuario es el correcto 
-        if(passwordValid) {
-            //Se logueo con exito por lo tanto debo entregar el token al usuario para que este habilitado a hacer otras consultas
-            const tokenJWT = jwt.sign({id: userFound.id}, process.env.SECRET_KEY, { //En nuestro caso el token se genera apartir del id
-                expiresIn: 60 * 60 * 24
-            })
-    
-            //Enviamos el token al cliente
-            res.json({
-                auth: true,
-                tokenJWT
-            });
-        }else {
-            res.json({
+    try {
+        let rows = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        console.log(rows.length);
+        if(rows.length > 0) { //Hubo coincidencia por lo que el email corresponde a un usuario registrado
+            const userFound = rows[0];
+            console.log(userFound);
+            //El password de userFound esta cifrado por que asi se guardo en la DB debo mediante bcrypt compararlo con el pass que introdujó el usuario
+            const passwordValid = await bcrypt.compare(password, userFound.password);
+            //Chequeamos si el password del usuario es el correcto 
+            if(passwordValid) {
+                //Se logueo con exito por lo tanto debo entregar el token al usuario para que este habilitado a hacer otras consultas
+                const tokenJWT = jwt.sign({id: userFound.id}, process.env.SECRET_KEY, { //En nuestro caso el token se genera apartir del id
+                    expiresIn: 60 * 60 * 24
+                })
+        
+                //Enviamos el token al cliente
+                res.status(200).json({
+                    auth: true,
+                    message: `${tokenJWT}`
+                });
+            }else {
+                res.status(400).json({
+                    error: true,
+                    message: 'Invalid password'
+                });
+            }
+        }else { //Es un nuevo email y crearemos un nuevo usuario
+            res.status(400).json({
                 error: true,
-                message: 'Invalid password'
+                message: 'Invalid email'
             });
-        }
-    }else { //Es un nuevo email y crearemos un nuevo usuario
-        res.json({
+        }    
+    }catch(err) {
+        res.status(500).json({
             error: true,
-            message: 'Invalid email'
-        });
+            message: `${err}`
+        })
     }
+    
 }
 
 module.exports= {

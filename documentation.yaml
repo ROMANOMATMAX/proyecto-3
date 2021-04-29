@@ -32,7 +32,34 @@ paths:
           schema:
             type: string
           required: true
-        
+
+  /user/signin:
+    post:
+      summary: "User logging"
+      requestBody:
+        description: "For logging you need email and password"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/product"
+      responses:
+        "200":
+          description: "Todo OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Producto"
+        "400":
+          $ref: "#components/responses/DatosFaltantes"
+        "401":
+          $ref: "#components/responses/SinAcceso"
+        "403":
+          $ref: "#components/responses/NoAutorizado"
+        "500":
+          $ref: "#components/responses/ErrorServidor"
+                
+
         
         
 components:

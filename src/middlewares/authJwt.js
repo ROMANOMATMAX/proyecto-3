@@ -7,7 +7,7 @@ const verifyTokenMiddleWare = async (req, res, next) => {
     const token = req.headers["x-access-token"];//El token debe ser enviado al hacer request en un header llamado x-access-token
 
     if(!token) {
-        return res.status(401).json({
+        return res.status(400).json({
             auth: false,
             message: 'No token provided'
         })
@@ -25,12 +25,13 @@ const verifyTokenMiddleWare = async (req, res, next) => {
         }else {
             //No existe el usuario
             return res.status(404).json({
+                err: false,
                 message: 'No user found'
             })
         }
     }catch(err) {
-        res.json({
-            err
+        res.status(500).json({
+            message: `${err}`
         })
     }
 }

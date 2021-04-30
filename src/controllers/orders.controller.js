@@ -124,26 +124,34 @@ const modifyOrderBeforeConfirmation = async (req, res) => {
     //Address no existe en la tabla order / osea que de alguna manera habria que modificar el adress del usuario??
     //Podria agregarle una direccion a la table order la cual por default tenga la direccion del usuario pero que pueda ser modificable
     //Ojo con el create_date por que deberia generarse cuando el usuario confirma la orden -- creo que es el ultimo cambio que deberia realizarse
-    const creation_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const {address, payment_kind, orderId} = req.body; //En el body del POST tendre la direccion (que por defecto en el front yo pondria la del user registrado) y el metodo de pago que por defecto tmb lo iniciaria en efectivo
-    const rows = await pool.query('SELECT * FROM orders WHERE id= ?', [orderId]);
-    const order = rows[0];
-    const lastModifiedOrder = {
-        ...order,
-        creation_date,
-        address,
-        payment_kind
+    //Verificamos que es un orderId valido 
+    const allOrdersList = await pool.query('SELECT id FROM orders');
+    if(helper.findCoincidenceInOrderList(allOrdersList, orderId)) {
+        const creation_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const rows = await pool.query('SELECT * FROM orders WHERE id= ?', [orderId]);
+        const order = rows[0];
+        const lastModifiedOrder = {
+            ...order,
+            creation_date,
+            address,
+            payment_kind
+        }
+
+        console.log(lastModifiedOrder);
+
+        //Deberia actualizar este dato en la BD
+        pool.query('UPDATE orders set ? WHERE id = ?', [lastModifiedOrder, orderId])
+
+        res.json({
+            lastModifiedOrder,
+            message: `You updated the order ${orderId}`
+        })
+    }else {
+        res.status(400).json({
+            message: 'The order you want to update does not exist'
+        })
     }
-
-    console.log(lastModifiedOrder);
-
-    //Deberia actualizar este dato en la BD
-    pool.query('UPDATE orders set ? WHERE id = ?', [lastModifiedOrder, orderId])
-
-    res.json({
-        lastModifiedOrder,
-        message: `You updated the order ${orderId}`
-    })
 }
 
 //Necesito una funcion que le permita al admin borrar una orden eliminarla de DB
@@ -151,13 +159,28 @@ const modifyOrderBeforeConfirmation = async (req, res) => {
 //queden sin padre para esto hay que hacer una configuracion on cascade
 
 /****** Funcion que permite borrar una orden - Solo para Admins ******/
-const deleteOrder = (req, res) => {
+const deleteOrder = async (req, res) => {
     const {id} = req.params;
-    pool.query('DELETE FROM orders WHERE id = ?', [id]);
+    const isANumber = /^\d+$/.test(id);
+    console.log(isANumber);
+    if(isANumber) {
+        const allOrdersList = await pool.query('SELECT id FROM orders');
+        if(helper.findCoincidenceInOrderList(allOrdersList, id)) {
+            pool.query('DELETE FROM orders WHERE id = ?', [id]);
 
-    res.json({
-        message: `you deleted the order ${id}`
-    })
+            res.json({
+                message: `you deleted the order ${id}`
+            })
+        }else {
+            res.status(400).json({
+                message: 'The order you want to update does not exist'
+            })
+        }
+    }else {
+        res.status(400).json({
+            message: 'Send a number as param'
+        }) 
+    }
 }
 
 

@@ -3,7 +3,7 @@ const router = express.Router();
 const {verifyTokenMiddleWare, isAdmin} = require('../middlewares/authJwt');
 const {createNewOrder, modifyOrderStatus, getAllOrders, getOneOrder, deleteOrder, modifyOrderBeforeConfirmation} = require('../controllers/orders.controller');
 const {addNewProductToOrder, removeProductFromOrder} = require('../controllers/orderToProduct.controller');
-const {statusOrderModificationSchema} = require('../middlewares/schemas');
+const {statusOrderModificationSchema, las, lastOrderModificationSchema} = require('../middlewares/schemas');
 const validateResourceMW = require('../middlewares/validateSchemas');
 //Routes
 router.get('/', (req, res) => {
@@ -32,7 +32,7 @@ router.delete('/:id', [verifyTokenMiddleWare, isAdmin], deleteOrder)
 router.post('/add-product-to-order', [verifyTokenMiddleWare], addNewProductToOrder)
 
 //Endpoint que permite modificar la orden al confirmar el pedido - por ejemplo se podria modificar la direccion, el metodo de pago 
-router.put('/last-modification', [verifyTokenMiddleWare], modifyOrderBeforeConfirmation);
+router.put('/last-modification', [verifyTokenMiddleWare, validateResourceMW(lastOrderModificationSchema)], modifyOrderBeforeConfirmation);
 
 
 module.exports = router;

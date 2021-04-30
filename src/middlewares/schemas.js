@@ -31,9 +31,17 @@ const statusOrderModificationSchema = yup.object({
     orderId: yup.number('orderId must be a number').integer('orderId must be integer').positive('orderId must be positive').required('OrderId is required').strict(),
     newStatus: yup.string().oneOf(['nuevo', 'confirmado', 'preparando', 'enviando', 'cancelado', 'entregado'])
 })
+
+const lastOrderModificationSchema = yup.object({
+    address: yup.string().required(),
+    payment_kind: yup.string().required(),
+    orderId: yup.number('orderId must be a number').integer('orderId must be integer').positive('orderId must be positive').required('OrderId is required').strict()
+})
+
 module.exports = {
     userSignUpSchema,
     userSignInSchema,
     productSchema,
-    statusOrderModificationSchema
+    statusOrderModificationSchema,
+    lastOrderModificationSchema
 }

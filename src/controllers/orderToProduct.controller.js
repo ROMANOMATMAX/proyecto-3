@@ -47,6 +47,7 @@ const addNewProductToOrder = async (req, res) => {
 const removeProductFromOrder = async (req, res) => {
     
     const {orderId, productId} = req.body;
+    console.log(orderId);
     //Consulto si realmente el id corresponde a una orden valida existente
     const orders = await pool.query('SELECT id FROM orders');
     if(helper.findCoincidenceOrders(orders, orderId)) {
@@ -59,7 +60,7 @@ const removeProductFromOrder = async (req, res) => {
             console.log("La orden existe y el producto pertenece a la orden");
             //Pregunto si a esa orden no le queda un solo producto / si le quedará uno ademas de borrar el prod debo borrar la orden
             if(productsInYourOrder.length > 1) {
-                await pool.query('DELETE FROM orderstoproducts WHERE order_id = ? AND product_id = ? LIMIT 1', [orderId, productId]); 
+                await pool.query('DELETE FROM orderstoproducts WHERE order_id = ? AND product_id = ? LIMIT 1', [orderId, productId]); //Need limit 1 for only delete one item
                 //Si un producto se remueve de la orden debe recalcularse el monto total para ellos consultamos todos los prods de la orden y sus precios
                 const allProductInYourOrder = await pool.query('SELECT otp.order_id, otp.product_id, p.name, p.price FROM orderstoproducts otp INNER JOIN products p ON otp.product_id = p.id\
                 WHERE otp.order_id = ?', [orderId]);

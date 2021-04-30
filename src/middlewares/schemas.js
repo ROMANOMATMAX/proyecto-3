@@ -27,8 +27,13 @@ const productSchema = yup.object({
     photo: yup.string()
 })
 
+const statusOrderModificationSchema = yup.object({
+    orderId: yup.number('orderId must be a number').integer('orderId must be integer').positive('orderId must be positive').required('OrderId is required').strict(),
+    newStatus: yup.string().oneOf(['nuevo', 'confirmado', 'preparando', 'enviando', 'cancelado', 'entregado'])
+})
 module.exports = {
     userSignUpSchema,
     userSignInSchema,
-    productSchema
+    productSchema,
+    statusOrderModificationSchema
 }

@@ -1,5 +1,6 @@
 const { response } = require('express');
 const pool = require('../database');
+const helper = require('../lib/helpers');
 
 /******Funcion que agrega productos a la orden / Tambien genera la orden si esta aun no existe ******/
 const createNewOrder = async (req, res) => {
@@ -36,31 +37,39 @@ const modifyOrderStatus = async (req, res) => {
     //Podria agregar un check para ver si realmente existe una orden
     const {newStatus, orderId} = req.body; 
     console.log(newStatus);
-    // const orderID = req.app.get('orderId');
-    const rows = await pool.query('SELECT * FROM orders WHERE id = ?', [orderId]);
-    const order = rows[0];
-    
-    const {id, user_id, creation_date, payment_kind, total_amount, status} = order;
+    //Necesitas en primer lugar verificar que el orderId que te pasaron existe 
+    const allOrdersList = await pool.query('SELECT id FROM orders');
+    if(helper.findCoincidenceInOrderList(allOrdersList, orderId)) {
+        console.log("La orden existe");
+        const rows = await pool.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+        const order = rows[0];
+        
+        const {id, user_id, creation_date, payment_kind, total_amount, status} = order;
 
-    const orderModified = {
-        id, 
-        user_id, 
-        creation_date,
-        payment_kind,
-        total_amount,
-        status: newStatus
-    }
-    try {
-        await pool.query('UPDATE orders set ? WHERE id = ?', [orderModified, orderId]);
+        const orderModified = {
+            id, 
+            user_id, 
+            creation_date,
+            payment_kind,
+            total_amount,
+            status: newStatus
+        }
+        try {
+            await pool.query('UPDATE orders set ? WHERE id = ?', [orderModified, orderId]);
 
-        res.json({
-            status,
-            orderId,
-            order
-        })
-    }catch(err) {
-        res.json({
-            err
+            res.json({
+                status,
+                orderId,
+                order
+            })
+        }catch(err) {
+            res.json({
+                err
+            })
+        }
+    }else {
+        res.status(400).json({
+            message: 'The order you want to update does not exist'
         })
     }
     
@@ -78,19 +87,33 @@ const getAllOrders = async (req, res) => {
 /****** Funcion que nos entrega una orden - con todos los datos relacionados a través de uniones de tablas ******/
 const getOneOrder = async (req, res) => {
     const {id} = req.params;
-
+    const isANumber = /^\d+$/.test(id);
+    console.log(isANumber);
+    if(isANumber) {
+        const allOrdersList = await pool.query('SELECT id FROM orders');
+        if(helper.findCoincidenceInOrderList(allOrdersList, id)) {
+            const rows = await pool.query('SELECT o.id, o.creation_date, o.status, o.total_amount, u.fullname, u.address, p.name, p.price, p.description\
+            FROM orders o INNER JOIN orderstoproducts otp ON o.id = otp.order_id INNER JOIN users u ON o.user_id = u.id\
+            INNER JOIN products p ON otp.product_id = p.id WHERE o.id = ?', [id]); //Si quiero acceso a este en otro endpoint como hago?
+            console.log(rows);
+            // const order = rows[0];
+            // console.log(order);
+            res.json({
+                rows,
+                productsAmount: rows.length,
+                message: 'This is the order you asked for'
+            });
+        }else{
+            res.status(400).json({
+                message: 'The order you want to get does not exist'
+            })
+        }
+    }else {
+        res.status(400).json({
+            message: 'Send a number as param'
+        }) 
+    }
     //Consultar una orden es consultar algo que puede tener multiples productos adentro por lo tanto puede estar conformada por varias rows
-    const rows = await pool.query('SELECT o.id, o.creation_date, o.status, o.total_amount, u.fullname, u.address, p.name, p.price, p.description\
-    FROM orders o INNER JOIN orderstoproducts otp ON o.id = otp.order_id INNER JOIN users u ON o.user_id = u.id\
-    INNER JOIN products p ON otp.product_id = p.id WHERE o.id = ?', [id]); //Si quiero acceso a este en otro endpoint como hago?
-    console.log(rows);
-    // const order = rows[0];
-    // console.log(order);
-    res.json({
-        rows,
-        productsAmount: rows.length,
-        message: 'This is the order you asked for'
-    });
 }
 
 

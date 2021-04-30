@@ -21,7 +21,7 @@ router.post('/add',[verifyTokenMiddleWare, isAdmin, validateResourceMW(productSc
 router.get('/:id',[verifyTokenMiddleWare], getOneProduct)
 
 //Endpoint que nos permite modificar los datos de un producto - Solo para Admins
-router.put('/modify/:id', [verifyTokenMiddleWare, isAdmin], modifyProduct)
+router.put('/modify/:id', [verifyTokenMiddleWare, isAdmin, validateResourceMW(productSchema)], modifyProduct)
 
 //Endpoint que nos permite borrar un producto de la lista - Solo para Admins
 router.delete('/delete/:id', [verifyTokenMiddleWare, isAdmin], deleteProduct)

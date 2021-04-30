@@ -3,8 +3,8 @@ const router = express.Router();
 const {verifyTokenMiddleWare, isAdmin} = require('../middlewares/authJwt');
 const {createNewOrder, modifyOrderStatus, getAllOrders, getOneOrder, deleteOrder, modifyOrderBeforeConfirmation} = require('../controllers/orders.controller');
 const {addNewProductToOrder, removeProductFromOrder} = require('../controllers/orderToProduct.controller');
-
-
+const {statusOrderModificationSchema} = require('../middlewares/schemas');
+const validateResourceMW = require('../middlewares/validateSchemas');
 //Routes
 router.get('/', (req, res) => {
     res.send('Tas conectado perri');
@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 router.post('/add', verifyTokenMiddleWare,createNewOrder)
 
 //Endpoint para modificar el estado de un pedido - solo para Admins
-router.put('/modify-status', [verifyTokenMiddleWare, isAdmin], modifyOrderStatus)
+router.put('/modify-status', [verifyTokenMiddleWare, isAdmin, validateResourceMW(statusOrderModificationSchema)], modifyOrderStatus)
 
 //Endpoint que permite obtener todas las ordenes existentes - solo para Admins
 router.get('/all', [verifyTokenMiddleWare, isAdmin], getAllOrders)

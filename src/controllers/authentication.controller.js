@@ -114,7 +114,7 @@ const checkUserProvided = async (req, res) => {
                 message: 'No password provided'
             })
         }
-    }
+    } 
     //validar que en el body las propiedades vienen con contenido
 
 

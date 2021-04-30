@@ -42,25 +42,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/product"
+              $ref: "#/components/schemas/user"
       responses:
-        "200":
-          description: "Todo OK"
+        200:
+          description: Success response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Producto"
-        "400":
-          $ref: "#components/responses/DatosFaltantes"
-        "401":
-          $ref: "#components/responses/SinAcceso"
-        "403":
-          $ref: "#components/responses/NoAutorizado"
-        "500":
-          $ref: "#components/responses/ErrorServidor"
-                
-
-        
+                type: object
+                properties:
+                  erro:
+                    type: boolean
+                    description: Boolean that describe the status of the request.
+                  message:
+                    type: string
+                    description: message the describes the error or show the user token. 
         
 components:
   schemas:

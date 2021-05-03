@@ -7,40 +7,45 @@ const addNewProductToOrder = async (req, res) => {
 
     //Recibo a través del body el id de la orden y el id del producto
     const {orderId, productId} = req.body;
-
-    //Creo el nuevo objeto a introducir en DB
-    const newProductOrder = {
-        order_id: orderId,
-        product_id: productId
-    }
-
-    //Insertamos este nuevo producto en la orden -- DB
-    try {
-        //Agrego el nuevo producto a la orden
-        const newProductToOrder = await pool.query('INSERT INTO orderstoproducts set ?', [newProductOrder]);
-        //Consulto todos los productos de la orden 
-        const allProductInYourOrder = await pool.query('SELECT otp.order_id, otp.product_id, p.name, p.price FROM orderstoproducts otp INNER JOIN products p ON otp.product_id = p.id\
-        WHERE otp.order_id = ?', [orderId]);
-        console.log(allProductInYourOrder);
-        let totalAmount = 0;
-        //Sumo los precios de todos los productos de la orden
-        allProductInYourOrder.forEach(product => {
-            totalAmount = totalAmount + product.price;
-        });
-        console.log(totalAmount); //This is your new total amount order
-        //Actualizo el monto total de la orden 
-        await pool.query('UPDATE orders SET total_amount = ? WHERE id = ?', [totalAmount, orderId]);
-        res.status(200).json({
-            productToOrderId: newProductOrder.insertId,
-            message: 'You have added a product to your order'
+    const allOrderList = await pool.query('SELECT id FROM orders')
+    if(helper.findCoincidenceInOrderList(allOrderList, orderId)) {
+        const allProductsList = await pool.query('SELECT id FROM products')
+        if(helper.findCoincidenceInProductList(allProductsList, productId)){
+            console.log('El producto existe');
+            //Creo el nuevo objeto a introducir en DB
+            const newProductOrder = {
+                id: 0,
+                order_id: orderId,
+                product_id: productId
+            }
+            //Agrego el nuevo producto a la orden
+            const newProductToOrder = await pool.query('INSERT INTO orderstoproducts set ?', [newProductOrder]);
+            //Consulto todos los productos de la orden 
+            const allProductInYourOrder = await pool.query('SELECT otp.order_id, otp.product_id, p.name, p.price FROM orderstoproducts otp INNER JOIN products p ON otp.product_id = p.id\
+            WHERE otp.order_id = ?', [orderId]);
+            console.log(allProductInYourOrder);
+            let totalAmount = 0;
+            //Sumo los precios de todos los productos de la orden
+            allProductInYourOrder.forEach(product => {
+                totalAmount = totalAmount + product.price;
+            });
+            console.log(totalAmount); //This is your new total amount order
+            //Actualizo el monto total de la orden 
+            await pool.query('UPDATE orders SET total_amount = ? WHERE id = ?', [totalAmount, orderId]);
+            res.status(200).json({
+                productToOrderId: newProductOrder.insertId,
+                message: 'You have added a product to your order'
+            })
+        }else{
+            res.status(400).json({
+                message: 'The product you want to add is not in List'
+            })
+        } 
+    }else {
+        res.status(400).json({
+            message: 'The order you want to add a product does not exist'
         })
-        //Añadido el nuevo producto necesito controlar nuevamente cuales son los productos dentro de la orden y su precio
-    }catch(err) {
-        res.status(500).json({
-            message: `${err}`
-        })
-    }
-    
+    }   
 }
 
 /***** Funcion que nos permite borrar un producto a la orden ******/
@@ -78,7 +83,7 @@ const removeProductFromOrder = async (req, res) => {
                 })
             }else {
                 await pool.query('DELETE FROM orderstoproducts WHERE order_id = ? AND product_id = ?', [orderId, productId]); 
-                await pool.query('DELETE FROM orders WHERE id = ?', [orderId]);
+                await pool.query('UPDATE orders SET active = ? WHERE id = ?', [0,orderId]);
                 return res.status(200).json({
                     message: 'You removed one item from the order and cause it was the last one also the order was deleted'
                 })

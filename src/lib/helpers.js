@@ -18,6 +18,18 @@ helper.findCoincidenceProducts = (list, itemId) => {
     return match;
 }
 
+helper.findCoincidenceUsers = (list, itemId) => {
+    let match = false;
+    list.forEach(item => {
+        console.log(item.product_id, itemId);
+        if(item.product_id === itemId) {
+            match = true;
+            return match;
+        }
+    });
+    return match;
+}
+
 helper.findCoincidenceOrders = (list, itemId) => {
     let match = false;
     list.forEach(item => {
@@ -57,6 +69,21 @@ helper.findCoincidenceInOrderList = (list, id) => {
     });
     return match;
 }
+
+helper.findCoincidenceInUserList = (list, id) => {
+    const itemId = parseInt(id);
+    console.log(list);
+    let match = false;
+    list.forEach(item => {
+        console.log(item.id, itemId);
+        if(item.id === itemId) {
+            match = true;
+            return match;
+        }
+    });
+    return match;
+}
+
 
 module.exports = helper;
 

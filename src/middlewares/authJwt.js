@@ -31,6 +31,7 @@ const verifyTokenMiddleWare = async (req, res, next) => {
         }
     }catch(err) {
         res.status(500).json({
+            err: true,
             message: `${err}`
         })
     }

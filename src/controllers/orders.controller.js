@@ -56,7 +56,9 @@ const modifyOrderStatus = async (req, res) => {
         }
         try {
             await pool.query('UPDATE orders set ? WHERE id = ?', [orderModified, orderId]);
-
+            if(newStatus === 'cancelado' || newStatus === 'entregado') {
+                await pool.query('UPDATE orders set active = ? WHERE id = ?', [0, orderId]);
+            }
             res.json({
                 status,
                 orderId,
@@ -119,7 +121,7 @@ const getOneOrder = async (req, res) => {
 
 /****** Funcion para actualizar los datos de una orden / datos de acceso al usuario comun *******/
 const modifyOrderBeforeConfirmation = async (req, res) => {
-    
+    console.log("modificando orden por ultima vez");
     // creation_date
     //Address no existe en la tabla order / osea que de alguna manera habria que modificar el adress del usuario??
     //Podria agregarle una direccion a la table order la cual por default tenga la direccion del usuario pero que pueda ser modificable
@@ -128,25 +130,38 @@ const modifyOrderBeforeConfirmation = async (req, res) => {
     //Verificamos que es un orderId valido 
     const allOrdersList = await pool.query('SELECT id FROM orders');
     if(helper.findCoincidenceInOrderList(allOrdersList, orderId)) {
-        const creation_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        const rows = await pool.query('SELECT * FROM orders WHERE id= ?', [orderId]);
-        const order = rows[0];
-        const lastModifiedOrder = {
-            ...order,
-            creation_date,
-            address,
-            payment_kind
+
+
+        const order = await pool.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+        console.log(order, 'hola');
+        console.log(order[0]);
+        console.log(order[0].active);
+        if(order[0].active === 1) {
+            const creation_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            const rows = await pool.query('SELECT * FROM orders WHERE id= ?', [orderId]);
+            const order = rows[0];
+            const lastModifiedOrder = {
+                ...order,
+                creation_date,
+                address,
+                payment_kind
+            }
+
+            console.log(lastModifiedOrder);
+
+            //Deberia actualizar este dato en la BD
+            pool.query('UPDATE orders set ? WHERE id = ?', [lastModifiedOrder, orderId])
+
+            res.json({
+                lastModifiedOrder,
+                message: `You updated the order ${orderId}`
+            })
+        }else {
+            console.log("Esta false la columna active");
+            res.json({
+                message: 'You want to update an order that is desactive'
+            });
         }
-
-        console.log(lastModifiedOrder);
-
-        //Deberia actualizar este dato en la BD
-        pool.query('UPDATE orders set ? WHERE id = ?', [lastModifiedOrder, orderId])
-
-        res.json({
-            lastModifiedOrder,
-            message: `You updated the order ${orderId}`
-        })
     }else {
         res.status(400).json({
             message: 'The order you want to update does not exist'
@@ -166,11 +181,29 @@ const deleteOrder = async (req, res) => {
     if(isANumber) {
         const allOrdersList = await pool.query('SELECT id FROM orders');
         if(helper.findCoincidenceInOrderList(allOrdersList, id)) {
-            pool.query('DELETE FROM orders WHERE id = ?', [id]);
 
-            res.json({
-                message: `you deleted the order ${id}`
-            })
+            
+            const order = await pool.query('SELECT * FROM orders WHERE id = ?', [id]);
+            console.log(order, 'hola');
+            console.log(order[0]);
+            console.log(order[0].active);
+            if(order[0].active === 1) { //Verificamos si es que no esta active ya
+                const newActive = 0;
+                const deleted = {
+                        ...order[0],
+                        active: newActive
+                };
+                console.log('After spread operator', deleted);
+                await pool.query('UPDATE orders set ? WHERE id = ?', [deleted, id]);
+                res.json({
+                    message: `you deleted the order ${id}`
+                })
+            }else {
+                console.log("Ya esta false la columna active");
+                res.json({
+                    message: 'This order is already inactive'
+                });
+            }
         }else {
             res.status(400).json({
                 message: 'The order you want to update does not exist'
@@ -183,6 +216,48 @@ const deleteOrder = async (req, res) => {
     }
 }
 
+/****** Funcion para activar una orden ********/
+const activeOrder = async (req, res) => {
+    const {id} = req.params;
+    const isANumber = /^\d+$/.test(id);
+    console.log(isANumber);
+    if(isANumber) {
+        const allOrdersList = await pool.query('SELECT id FROM orders');
+        if(helper.findCoincidenceInOrderList(allOrdersList, id)) {
+
+            
+            const order = await pool.query('SELECT * FROM orders WHERE id = ?', [id]);
+            console.log(order, 'hola');
+            console.log(order[0]);
+            console.log(order[0].active);
+            if(order[0].active === 0) { //Verificamos si es que no esta active ya
+                const newActive = 1;
+                const actived = {
+                        ...order[0],
+                        active: newActive
+                };
+                console.log('After spread operator', actived);
+                await pool.query('UPDATE orders set ? WHERE id = ?', [actived, id]);
+                res.json({
+                    message: `you active the order ${id}`
+                })
+            }else {
+                console.log("Ya esta true la columna active");
+                res.json({
+                    message: 'This order is already active'
+                });
+            }
+        }else {
+            res.status(400).json({
+                message: 'The order you want to update does not exist'
+            })
+        }
+    }else {
+        res.status(400).json({
+            message: 'Send a number as param'
+        }) 
+    }
+}
 
 module.exports = {
     createNewOrder,
@@ -190,5 +265,6 @@ module.exports = {
     getAllOrders, 
     getOneOrder, 
     deleteOrder,
-    modifyOrderBeforeConfirmation
+    modifyOrderBeforeConfirmation,
+    activeOrder
 }

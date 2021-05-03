@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {verifyTokenMiddleWare, isAdmin} = require('../middlewares/authJwt');
-const {getAllProducts, addNewProduct, getOneProduct, modifyProduct, deleteProduct} = require('../controllers/products.controller');
+const {getAllProducts, addNewProduct, getOneProduct, modifyProduct, deleteProduct, activeProduct} = require('../controllers/products.controller');
 const {productSchema} = require('../middlewares/schemas');
 const validateResourceMW = require('../middlewares/validateSchemas');
 
@@ -24,7 +24,10 @@ router.get('/:id',[verifyTokenMiddleWare], getOneProduct)
 router.put('/modify/:id', [verifyTokenMiddleWare, isAdmin, validateResourceMW(productSchema)], modifyProduct)
 
 //Endpoint que nos permite borrar un producto de la lista - Solo para Admins
-router.delete('/delete/:id', [verifyTokenMiddleWare, isAdmin], deleteProduct)
+router.put('/delete/:id', [verifyTokenMiddleWare, isAdmin], deleteProduct)
+
+//Endpoint que nos permite borrar un producto de la lista - Solo para Admins
+router.put('/active/:id', [verifyTokenMiddleWare, isAdmin], activeProduct)
 
 
 module.exports = router;

@@ -9,38 +9,52 @@ const addNewProductToOrder = async (req, res) => {
     const {orderId, productId} = req.body;
     const allOrderList = await pool.query('SELECT id FROM orders')
     if(helper.findCoincidenceInOrderList(allOrderList, orderId)) {
-        const allProductsList = await pool.query('SELECT id FROM products')
-        if(helper.findCoincidenceInProductList(allProductsList, productId)){
-            console.log('El producto existe');
-            //Creo el nuevo objeto a introducir en DB
-            const newProductOrder = {
-                id: 0,
-                order_id: orderId,
-                product_id: productId
-            }
-            //Agrego el nuevo producto a la orden
-            const newProductToOrder = await pool.query('INSERT INTO orderstoproducts set ?', [newProductOrder]);
-            //Consulto todos los productos de la orden 
-            const allProductInYourOrder = await pool.query('SELECT otp.order_id, otp.product_id, p.name, p.price FROM orderstoproducts otp INNER JOIN products p ON otp.product_id = p.id\
-            WHERE otp.order_id = ?', [orderId]);
-            console.log(allProductInYourOrder);
-            let totalAmount = 0;
-            //Sumo los precios de todos los productos de la orden
-            allProductInYourOrder.forEach(product => {
-                totalAmount = totalAmount + product.price;
-            });
-            console.log(totalAmount); //This is your new total amount order
-            //Actualizo el monto total de la orden 
-            await pool.query('UPDATE orders SET total_amount = ? WHERE id = ?', [totalAmount, orderId]);
-            res.status(200).json({
-                productToOrderId: newProductOrder.insertId,
-                message: 'You have added a product to your order'
-            })
-        }else{
+        //Consulto si la orden esta activa - si ya no lo esta no puedo tocarla
+        const activeColumn = await pool.query('SELECT active FROM orders WHERE id = ?', [orderId]);
+        console.log(activeColumn[0].active);
+        if(activeColumn[0].active === 1){
+            const allProductsList = await pool.query('SELECT id FROM products')
+            if(helper.findCoincidenceInProductList(allProductsList, productId)){
+                console.log('El producto existe');
+                const rows = await pool.query('SELECT name, price FROM products WHERE id = ?', [productId])
+                const product = rows[0];
+                //Creo el nuevo objeto a introducir en DB
+                const newProductOrder = {
+                    id: 0,
+                    order_id: orderId,
+                    product_id: productId,
+                    product_name: product.name,
+                    product_price: product.price
+                }
+                //Agrego el nuevo producto a la orden
+                const newProductToOrder = await pool.query('INSERT INTO orderstoproducts set ?', [newProductOrder]);
+                //Consulto todos los productos de la orden 
+                // const allProductInYourOrder = await pool.query('SELECT otp.order_id, otp.product_id, p.name, p.price FROM orderstoproducts otp INNER JOIN products p ON otp.product_id = p.id\
+                // WHERE otp.order_id = ?', [orderId]);
+                const allProductInYourOrder = await pool.query('SELECT * FROM orderstoproducts WHERE order_id = ?', [orderId]);
+                console.log(allProductInYourOrder);
+                let totalAmount = 0;
+                //Sumo los precios de todos los productos de la orden
+                allProductInYourOrder.forEach(product => {
+                    totalAmount = totalAmount + product.product_price;
+                });
+                console.log(totalAmount); //This is your new total amount order
+                //Actualizo el monto total de la orden 
+                await pool.query('UPDATE orders SET total_amount = ? WHERE id = ?', [totalAmount, orderId]);
+                res.status(200).json({
+                    productToOrderId: newProductToOrder.insertId,
+                    message: 'You have added a product to your order'
+                })
+            }else{ 
+                res.status(400).json({
+                    message: 'The product you want to add is not in List'
+                })
+            } 
+        }else {
             res.status(400).json({
-                message: 'The product you want to add is not in List'
+                message: 'The order you want to add a product is not actived'
             })
-        } 
+        }
     }else {
         res.status(400).json({
             message: 'The order you want to add a product does not exist'

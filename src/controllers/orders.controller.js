@@ -94,15 +94,19 @@ const getOneOrder = async (req, res) => {
     if(isANumber) {
         const allOrdersList = await pool.query('SELECT id FROM orders');
         if(helper.findCoincidenceInOrderList(allOrdersList, id)) {
-            const rows = await pool.query('SELECT o.id, o.creation_date, o.status, o.total_amount, u.fullname, u.address, p.name, p.price, p.description\
-            FROM orders o INNER JOIN orderstoproducts otp ON o.id = otp.order_id INNER JOIN users u ON o.user_id = u.id\
-            INNER JOIN products p ON otp.product_id = p.id WHERE o.id = ?', [id]); //Si quiero acceso a este en otro endpoint como hago?
-            console.log(rows);
+            // const rows = await pool.query('SELECT o.id, o.creation_date, o.status, o.total_amount, u.fullname, u.address, p.name, p.price, p.description\
+            // FROM orders o INNER JOIN orderstoproducts otp ON o.id = otp.order_id INNER JOIN users u ON o.user_id = u.id\
+            // INNER JOIN products p ON otp.product_id = p.id WHERE o.id = ?', [id]); //Si quiero acceso a este en otro endpoint como hago?
+            // console.log(rows);
+            const productsDetails = await pool.query('SELECT otp.id, otp.order_id, otp.product_name, otp.product_price FROM orderstoproducts otp WHERE order_id = ?', [id])
+            console.log(productsDetails);
+            const orderDetails = await pool.query('SELECT o.total_amount, o.status, o.creation_date, o.address, o.payment_kind, u.fullname FROM orders o INNER JOIN users u ON o.user_id = u.id WHERE o.id = ?', [id]);
+            console.log(orderDetails);
             // const order = rows[0];
             // console.log(order);
             res.json({
-                rows,
-                productsAmount: rows.length,
+                ordersProducts: productsDetails,
+                aditionalOrderInfo: orderDetails,
                 message: 'This is the order you asked for'
             });
         }else{

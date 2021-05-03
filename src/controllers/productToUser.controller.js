@@ -50,7 +50,39 @@ const removeProductFromUser = async (req, res) => {
     }
 }
 
+/*******Funcion para traer los favoritos de un usuario ******/
+const getFavorites = async (req, res) => {
+    const {id} = req.params;
+    const isANumber = /^\d+$/.test(id);
+    console.log(isANumber);
+    if(isANumber) {
+        const allUsersList = await pool.query('SELECT id FROM users')
+        if(helper.findCoincidenceInUserList(allUsersList, id)) {
+            const favorites = await pool.query('SELECT p.name, p.description, p.price, ptu.user_id FROM producttouser ptu INNER JOIN products p\
+            ON ptu.product_id = p.id WHERE ptu.user_id = ?', [id])
+            if(favorites.length > 0){
+                res.status(200).json({
+                    favorites: favorites
+                })
+            }else{
+                res.status(200).json({
+                    message: 'You favorite list is empty, do you want to add a product?'
+                })
+            }
+        }else {
+            res.status(400).json({
+                message: 'The userId is not valid'
+            })
+        }
+    }else {
+        res.status(400).json({
+            message: 'Send a number as param'
+        }) 
+    }
+}
+
 module.exports = {
     addNewProductToUser,
-    removeProductFromUser
+    removeProductFromUser,
+    getFavorites
 }

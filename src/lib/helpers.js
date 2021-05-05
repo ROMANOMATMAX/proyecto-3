@@ -9,7 +9,6 @@ const helper = {
 helper.findCoincidenceProducts = (list, itemId) => {
     let match = false;
     list.forEach(item => {
-        console.log(item.product_id, itemId);
         if(item.product_id === itemId) {
             match = true;
             return match;
@@ -21,7 +20,6 @@ helper.findCoincidenceProducts = (list, itemId) => {
 helper.findCoincidenceUsers = (list, itemId) => {
     let match = false;
     list.forEach(item => {
-        console.log(item.product_id, itemId);
         if(item.product_id === itemId) {
             match = true;
             return match;
@@ -33,7 +31,6 @@ helper.findCoincidenceUsers = (list, itemId) => {
 helper.findCoincidenceOrders = (list, itemId) => {
     let match = false;
     list.forEach(item => {
-        console.log(item.id, itemId);
         if(item.id === itemId) {
             match = true;
             return match;
@@ -47,7 +44,6 @@ helper.findCoincidenceInProductList = (list, id) => {
     console.log(list);
     let match = false;
     list.forEach(item => {
-        console.log(item.id, itemId);
         if(item.id === itemId) {
             match = true;
             return match;
@@ -61,7 +57,6 @@ helper.findCoincidenceInOrderList = (list, id) => {
     console.log(list);
     let match = false;
     list.forEach(item => {
-        console.log(item.id, itemId);
         if(item.id === itemId) {
             match = true;
             return match;
@@ -75,7 +70,6 @@ helper.findCoincidenceInUserList = (list, id) => {
     console.log(list);
     let match = false;
     list.forEach(item => {
-        console.log(item.id, itemId);
         if(item.id === itemId) {
             match = true;
             return match;

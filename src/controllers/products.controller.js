@@ -15,7 +15,7 @@ const getAllProducts = async (req, res) => {
         }
     });
     console.log(products);
-    res.json({
+    res.status(200).json({
         availables: activeProducts,
         desactives: desactiveProducts
     })
@@ -32,7 +32,7 @@ const addNewProduct = async (req, res) => {
         photo
     }
     await pool.query('INSERT INTO products set ?', [newProduct]);
-    res.json({
+    res.status(200).json({
         newProduct,
         message: 'You have added a new Product to the list'
     })
@@ -40,7 +40,8 @@ const addNewProduct = async (req, res) => {
 
 /****** Funcion que nos permite obtener un producto ******/
 const getOneProduct = async (req, res) => {
-    const {id} = req.params;
+    const {product_id} = req.params;
+    const id = product_id;
     const isANumber = /^\d+$/.test(id);
     console.log(isANumber);
     if(isANumber) {
@@ -49,7 +50,7 @@ const getOneProduct = async (req, res) => {
             const rows = await pool.query('SELECT * FROM products WHERE id = ?', [id]); //Si quiero acceso a este en otro endpoint como hago?
             const product = rows[0];
             console.log(product);
-            res.json({
+            res.status(200).json({
                 product,
                 message: 'This is the product you asked for'
             });
@@ -67,7 +68,8 @@ const getOneProduct = async (req, res) => {
 
 /****** Funcion que nos permite modificar un producto - Solo para Admins ******/
 const modifyProduct = async (req, res) => {
-    const {id} = req.params;
+    const {product_id} = req.params;
+    const id = product_id;
     //Verificamos si el producto esta dentro de los productos de la lista
     const isANumber = /^\d+$/.test(id);
     console.log(isANumber);
@@ -87,7 +89,7 @@ const modifyProduct = async (req, res) => {
                     photo
                 }
                 await pool.query('UPDATE products set ? WHERE id = ?', [modifiedProduct, id]);
-                res.json({
+                res.status(200).json({
                     modifiedProduct,
                     message : 'You updated  one product'
                     }
@@ -112,7 +114,8 @@ const modifyProduct = async (req, res) => {
 
 /****** Funcion que nos permite eliminar un producto de la lista - Solo para Admins ******/
 const deleteProduct = async (req, res) => {
-    const {id} = req.params;
+    const {product_id} = req.params;
+    const id = product_id;
     const isANumber = /^\d+$/.test(id);
     console.log(isANumber);
     if(isANumber) {
@@ -156,7 +159,8 @@ const deleteProduct = async (req, res) => {
 
 /*************Funcion para activar un producto  *************/
 const activeProduct = async (req, res) => {
-    const {id} = req.params;
+    const {product_id} = req.params;
+    const id = product_id;
     const isANumber = /^\d+$/.test(id);
     console.log(isANumber);
     if(isANumber) {

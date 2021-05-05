@@ -11,11 +11,25 @@ servers:
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/romanomatias99/2delilaresto2/1.0.0
   - url: http://localhost:3050
+tags:
+  - name: users
+    description: Operations related to users
+  - name: products
+    description: Operation related to products
 paths: 
-  /user/all:
+  /users/all:
       get:
+        tags:
+          - users
         summary: Get all users
-        description: Allows to an Admin list all users
+        description: Allows to an Admin list all registered users
+        parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
         responses: 
           200:
             description: Success response
@@ -24,25 +38,99 @@ paths:
                 schema: 
                   type: array
                   items: 
-                    $ref: '#/components/schemas/user'
-        parameters:
-        - in: header
-          name: x-access-token
-          description: Token que se provee a un usuario Admin luego de loguearse
-          schema:
-            type: string
-          required: true
+                    $ref: '#/components/schemas/userSignUp'
+          400:
+            $ref: '#/components/responses/BadRequest'
+          403:
+            $ref: '#/components/responses/NoPermission'
+          404:
+            $ref: '#/components/responses/Forbidden'
+          500:
+            $ref: '#/components/responses/ServiceError'
+        
 
-  /user/signin:
+  /users/signup:
     post:
-      summary: "User logging"
+      tags:
+          - users
+      summary: "Create a new user account"
       requestBody:
-        description: "For logging you need email and password"
+        description: "All data related to a new user"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/user"
+              $ref: "#/components/schemas/userSignUp"
+      responses:
+        200:
+          description: Please pay attention, because the token is part of the response and you will need this for almost all endpoints.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auth:
+                    type: boolean
+                    description: Boolean that describe the status of the request.
+                  token:
+                    type: string
+                    description: message the describes the error or show the user token. 
+        400:
+            $ref: '#/components/responses/BadRequest'
+        500:
+            $ref: '#/components/responses/ServiceError'
+  
+  /users/signin:
+    post:
+      tags:
+          - users
+      summary: "User loggin"
+      requestBody:
+        description: "Provide email and password to loggin"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userSignIn"
+      responses:
+        200:
+          description: Please pay attention, because the token is part of the response and you will need this for almost all endpoints.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auth:
+                    type: boolean
+                    description: Boolean that describe the status of the request.
+                  token:
+                    type: string
+                    description: message the describes the error or show the user token. 
+        400:
+            $ref: '#/components/responses/BadRequest'
+        500:
+            $ref: '#/components/responses/ServiceError'
+    
+  /users/desactive/{user_id}:
+    put:
+      tags:
+        - users
+      summary: Desactive a user. After this you cannot log in with this user
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+        - name: user_id
+          in: path
+          description: ID of user to desactive
+          required: true
+          schema:
+            type: integer
+            format: int64
+    
       responses:
         200:
           description: Success response
@@ -51,16 +139,646 @@ paths:
               schema:
                 type: object
                 properties:
-                  erro:
-                    type: boolean
-                    description: Boolean that describe the status of the request.
                   message:
                     type: string
-                    description: message the describes the error or show the user token. 
+                    description: You delete a user
+        400:
+            $ref: '#/components/responses/BadRequest'          
+  
+  /users/active/{user_id}:
+    put:
+      tags:
+        - users
+      summary: Active a user - oposite action of desactive user endpoint
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+        - name: user_id
+          in: path
+          description: ID of user to desactive
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: You delete a user
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /users/add-product-to-user:
+    post:
+      tags:
+          - users
+      summary: "Add a product to favorite user list"
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: "You only must provide productId - The user is already known after loggin"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/productToUser"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+         
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /users/remove-product-to-user/{product_id}:
+    delete:
+      tags:
+        - users
+      summary: Remove a product from favorite user list
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+        - name: product_id
+          in: path
+          description: ID of product to delete from favorite user list
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+   
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /users/favorite/{id}:
+    get:
+      tags:
+        - users
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+        - name: id
+          in: path
+          description: ID of the user from whom you need the favorite list
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: List of favorite user products
+          content: 
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/product'
+        400:
+            $ref: '#/components/responses/BadRequest'
         
+  /products/add:
+    post:
+      tags:
+          - products
+      summary: "Add product to list"
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: "To create product you must provide name, price, image then description is optional"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/product"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+             
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /products/modify/{product_id}:
+    put:
+      tags:
+          - products
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+        - name: product_id
+          in: path
+          description: ID of product you want to modify
+          required: true
+          schema:
+            type: integer
+            format: int64
+      summary: "Modify some data from a product"
+      requestBody:
+        description: "To create product you must provide name, price, image then description is optional"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/product"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+            
+        400:
+            $ref: '#/components/responses/BadRequest'
+    
+  /products/desactive/{product_id}:
+    put:
+      tags:
+          - products
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+        - name: product_id
+          in: path
+          description: ID of product you want to desactive
+          required: true
+          schema:
+            type: integer
+            format: int64
+      summary: "Desactive a product from list"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+          
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /products/active/{product_id}:
+    put:
+      tags:
+          - products
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+        - name: product_id
+          in: path
+          description: ID of product you want to active
+          required: true
+          schema:
+            type: integer
+            format: int64
+      summary: "Active a product that was in list"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+               
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /products/all:
+      get:
+        tags:
+          - products
+        summary: Get all products
+        parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+        description: Allows to a user list all products
+        responses: 
+          200:
+            description: The response object has two properties that separate between availables and desactives products
+            content: 
+              application/json:
+                schema: 
+                  type: object
+                  properties:
+                    availables: 
+                      type: array
+                      items: 
+                        $ref: '#/components/schemas/product'
+                    desactives: 
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/product'
+                  
+          400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /products/{product_id}:
+    get:
+      tags:
+        - products
+      summary: Get one product by id
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+        - name: product_id
+          in: path
+          description: ID of product you want to get
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        200:
+          description: Success response
+          content: 
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  product: 
+                    $ref: '#/components/schemas/product'
+                  message: 
+                    type: string
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /orders/add:
+    post:
+      tags:
+        - order
+      summary: "Creates an order for the logued user"
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                    description: order id of the new order
+                  message:
+                    type: string
+                    description: success message
+        400:
+            $ref: '#/components/responses/BadRequest'
+
+        
+  /orders/modify-status:
+    put: 
+      tags:
+        - order
+      summary: Allows to admins modify the order status
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: "Provide the id of the order and the new status. Take care of status, is a enum (just some values are valid)"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/modifyOrder"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: success message
+        400:
+            $ref: '#/components/responses/BadRequest'
+
+            
+  /orders/all:
+      get:
+        tags:
+          - order
+        summary: Allows to admins to access all orders
+        parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+        description: Allows to an Admin user list all orders
+        responses: 
+          200:
+            description: You will get an array of order objects
+            content: 
+              application/json:
+                schema: 
+                  type: array
+                  items: 
+                    $ref: '#/components/schemas/order'
+                  
+          400:
+            $ref: '#/components/responses/BadRequest'
+          
+  /orders/{order_id}:
+    get:
+      tags:
+        - order
+      summary: Get one order by id
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+        - name: order_id
+          in: path
+          description: ID of order
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Success response
+          content: 
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  orderProducts: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/product'
+                  additionalOrderInfo:
+                    type: object
+                    properties:
+                      order:
+                        $ref: '#/components/schemas/product'
+                  message:
+                    type: string
+        400:
+            $ref: '#/components/responses/BadRequest'
+        
+  /orders/last-modification:
+    put:
+      tags:
+          - order
+      summary: "Modifies order for last time before confirmation"
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: "The order id you must provide must belong to the current logged user"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/modifyOrderLT"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: You added succesfully a product
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /orders/desactive/{order_id}:
+    put:
+      tags:
+          - order
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+        - name: order_id
+          in: path
+          description: ID of order you want to desactive
+          required: true
+          schema:
+            type: integer
+            format: int64
+      summary: "Desactives an order"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: You modified succesfully a product
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /orders/active/{order_id}:
+    put:
+      tags:
+          - order
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. In this case it needs to be the result of a succesful admin user loggin
+          schema:
+            type: string
+          required: true
+        - name: order_id
+          in: path
+          description: ID of order you want to desactive
+          required: true
+          schema:
+            type: integer
+            format: int64
+      summary: "Actives a order"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: You modified succesfully a product
+        400:
+            $ref: '#/components/responses/BadRequest'
+            
+  /orders/remove-product-from-order/{product_id}:
+    delete:
+      tags:
+        - order
+      summary: delete a product from an order
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+        - name: product_id
+          in: path
+          description: ID of product to delete from favorite
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: message the describes the action you performed
+        400:
+            $ref: '#/components/responses/BadRequest'
+        
+  /orders/add-product-to-order:
+    post:
+      tags:
+          - order
+      summary: add a product to an order
+      parameters:
+        - in: header
+          name: x-access-token
+          description: This token is part of the response of the signin endpoint. Get it with sign in action
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: "To add favorites to user"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/productToOrder"
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: message the describes the action you performed
+        400:
+            $ref: '#/components/responses/BadRequest'
+
 components:
   schemas:
-    user:
+    userSignUp:
       type: "object" 
       properties: 
         id:
@@ -81,6 +799,26 @@ components:
           type: "string"
         role: 
           type: "string"
+          
+    userSignIn:
+      type: "object" 
+      properties: 
+        email:
+          type: "string"
+        password:
+          type: "string"
+          
+    productToUser:
+      type: "object"
+      properties:
+        productId: 
+          type: "integer"
+  
+    productToOrder:
+      type: "object"
+      properties:
+        productId: 
+          type: "integer"
   
     product:
       type: "object"
@@ -111,6 +849,31 @@ components:
           type: "number"
         status:
           type: "string"
+          
+    modifyOrder:
+      type: "object"
+      properties:
+        newStatus:
+          type: string
+          enum: 
+           - nuevo
+           - confirmado
+           - preparando
+           - enviando
+           - cancelado
+           - entregado
+        orderId:
+          type: integer
+          
+    modifyOrderLT :
+      type: object
+      properties:
+        address: 
+          type: string
+        payment_kind: 
+          type: number
+        orderId: 
+          type: integer
     
     orderANDproduct: 
       type: "object"
@@ -127,3 +890,92 @@ components:
       type: apiKey
       name: api_key
       in: header
+  
+  # Respones
+  responses:
+    Unauthorized:
+      description: Unauthorized error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+                example: Unauthorized - No token provided
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          example:
+              error : 'string' 
+    Forbidden:
+      description: User not found
+      content:
+        application/json:
+          example:
+              message: 'No user found' 
+    ServiceError:
+      description: Service error
+      content:
+        application/json:
+          example:
+              message: 'Service error'
+    NoPermission:
+      description: Do not have authorization for this action
+      content:
+        application/json:
+          example:
+              message: 'You are not admin'
+    OKProduct:
+      description: Product response OK
+      content:
+        application/json:
+          example:
+            id: 1
+            name: Hot Dog
+            price: '5'
+            description: Hot Dog Description
+            imageURL: https://www.vvsupremo.com/wp-content/uploads/2016/02/900X570_Mexican-Style-Hot-Dogs.jpg
+            createdAt: '2021-04-23T04:25:08.000Z'
+            updatedAt: '2021-04-23T04:25:08.000Z'
+    OKUser:
+      description: User response OK
+      content:
+        application/json:
+          example:
+            id: 14
+            username: user
+            names: User Profile
+            email: user@example.com
+            phone: 555 555 555
+            address: Address user
+            role: user
+            createdAt: '2021-04-23T04:30:50.000Z'
+            updatedAt: '2021-04-23T04:30:50.000Z'
+    OKOrder:
+      description: Order response OK
+      content:
+        application/json:
+          example:
+            id: 26
+            orderDate: '2021-04-22T22:01:04.000Z'
+            paymentType: Transfer
+            total: '340'
+            status: end
+            userId: 2
+            createdAt: '2021-04-22T21:59:35.000Z'
+            updatedAt: '2021-04-23T03:35:44.000Z'
+            products:
+            - id: 1
+              name: Hot Dog
+              productOrders:
+                quantity: 20
+            - id: 2
+              name: Pizza
+              productOrders:
+                quantity: 30
+            User:
+              id: 2
+              names: FirstName LastName
+              address: Medellin

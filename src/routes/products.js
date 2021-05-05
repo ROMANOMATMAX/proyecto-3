@@ -18,16 +18,16 @@ router.get('/all',[verifyTokenMiddleWare], getAllProducts)
 router.post('/add',[verifyTokenMiddleWare, isAdmin, validateResourceMW(productSchema)], addNewProduct);
 
 //Endpoint que nos permite obtener un producto de la lista
-router.get('/:id',[verifyTokenMiddleWare], getOneProduct)
+router.get('/:product_id',[verifyTokenMiddleWare], getOneProduct)
 
 //Endpoint que nos permite modificar los datos de un producto - Solo para Admins
-router.put('/modify/:id', [verifyTokenMiddleWare, isAdmin, validateResourceMW(productSchema)], modifyProduct)
+router.put('/modify/:product_id', [verifyTokenMiddleWare, isAdmin, validateResourceMW(productSchema)], modifyProduct)
 
 //Endpoint que nos permite borrar un producto de la lista - Solo para Admins
-router.put('/delete/:id', [verifyTokenMiddleWare, isAdmin], deleteProduct)
+router.put('/desactive/:product_id', [verifyTokenMiddleWare, isAdmin], deleteProduct)
 
 //Endpoint que nos permite borrar un producto de la lista - Solo para Admins
-router.put('/active/:id', [verifyTokenMiddleWare, isAdmin], activeProduct)
+router.put('/active/:product_id', [verifyTokenMiddleWare, isAdmin], activeProduct)
 
 
 module.exports = router;

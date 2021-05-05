@@ -39,8 +39,7 @@ const addNewUser = async (req, res) => {
     if(rows.length > 0) { //Hubo coincidencia por lo que el email ya esta usado
         const userFound = rows[0];
         console.log(userFound);
-        return res.json({
-            error: true,
+        return res.status(400).json({
             message: "This email is already used"
         })
     }else { //Es un nuevo email y crearemos un nuevo usuario
@@ -84,7 +83,7 @@ const addNewUser = async (req, res) => {
             });
         }catch(err) {
             console.log(err);
-            res.send(err);
+            res.status(500).json({err});
         }
     }
 }
@@ -125,19 +124,16 @@ const checkUserProvided = async (req, res) => {
                 }
             }else {
                 res.status(400).json({
-                    error: true,
                     message: 'Invalid password'
                 });
             }
         }else { //Es un nuevo email y crearemos un nuevo usuario
             res.status(400).json({
-                error: true,
                 message: 'Invalid email'
             });
         }    
     }catch(err) {
         res.status(500).json({
-            error: true,
             message: `${err}`
         })
     }
@@ -145,7 +141,9 @@ const checkUserProvided = async (req, res) => {
 }
 
 const deleteUser = async (req, res) => {
-    const {id} = req.params; //Recuperas el id que te llega por params
+    const {user_id} = req.params;
+    // const {id} = req.params; //Recuperas el id que te llega por params
+    const id = user_id;
     const isANumber = /^\d+$/.test(id);//Verificas si realmente lo que te enviaron por param fue un numero
     console.log(isANumber);
     if(isANumber) {
@@ -163,12 +161,12 @@ const deleteUser = async (req, res) => {
                 };
                 console.log('After spread operator', deleted);
                 await pool.query('UPDATE users set ? WHERE id = ?', [deleted, id]);
-                res.json({
+                res.status(200).json({
                     message: 'You delete a user'
                 });
             }else {
                 console.log("Ya esta false la columna active");
-                res.json({
+                res.status(400).json({
                     message: 'This user is already inactive'
                 });
             }
@@ -186,7 +184,9 @@ const deleteUser = async (req, res) => {
 
 
 const activeUser = async (req, res) => {
-    const {id} = req.params; //Recuperas el id que te llega por params
+    const {user_id} = req.params;//Recuperas el id que te llega por params
+    // const {id} = req.params; //Recuperas el id que te llega por params
+    const id = user_id;
     const isANumber = /^\d+$/.test(id);//Verificas si realmente lo que te enviaron por param fue un numero
     console.log(isANumber);
     if(isANumber) {

@@ -21,7 +21,7 @@ const userSignInSchema = yup.object ({
 })
 
 const productSchema = yup.object({
-    name : yup.string().required("Product's name is required"), 
+    name : yup.string().required("Product's name is required").strict(), 
     description: yup.string(),
     price: yup.number("El precio deberia ser un numero").positive("Tu precio debe ser positivo").required("Product's price is required").strict(),
     photo: yup.string()
@@ -38,10 +38,20 @@ const lastOrderModificationSchema = yup.object({
     orderId: yup.number('orderId must be a number').integer('orderId must be integer').positive('orderId must be positive').required('OrderId is required').strict()
 })
 
+const favoriteProductSchema = yup.object({
+    productId: yup.number('productId must be a number').integer('productId must be integer').positive('productId must be positive').required('productId is required').strict()
+})
+
+const orderToProductSchema = yup.object({
+    productId: yup.number('productId must be a number').integer('productId must be integer').positive('productId must be positive').required('productId is required').strict()
+})
+
 module.exports = {
     userSignUpSchema,
     userSignInSchema,
     productSchema,
     statusOrderModificationSchema,
-    lastOrderModificationSchema
+    lastOrderModificationSchema,
+    favoriteProductSchema,
+    orderToProductSchema
 }

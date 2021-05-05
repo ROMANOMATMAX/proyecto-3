@@ -8,7 +8,6 @@ const verifyTokenMiddleWare = async (req, res, next) => {
 
     if(!token) {
         return res.status(400).json({
-            auth: false,
             message: 'No token provided'
         })
     }
@@ -25,13 +24,11 @@ const verifyTokenMiddleWare = async (req, res, next) => {
         }else {
             //No existe el usuario
             return res.status(404).json({
-                err: false,
                 message: 'No user found'
             })
         }
     }catch(err) {
         res.status(500).json({
-            err: true,
             message: `${err}`
         })
     }
@@ -50,10 +47,36 @@ const   isAdmin = async (req, res, next) => {
     }
 }
 
+const createNewOrderMiddleWare = async (req, res, next) => {
+    console.log("Estoy entrando al middleware de create order");
+    //minimamente el id del usuario que seguro esta en el front almacenado en algun lado- por el momento voy a considerar que lo obtengo al validar el token
+    const userID = req.app.get('userId');//Este es una variable global que guarda el id generada por el verifyTokenMiddlaware luego de autenticar el usuario
+    
+    console.log(userID);
+
+    //Genero el nuevo objeto orden que sera insertado en la DB - Esta es una orden con datos cargados por default luego podran actualizarse antes de confirmar el pedido
+    //El unico dato relevante aqui será el user_id que ya me asocia esa orden al usuario correcto
+    const newOrder = {
+        id: 0,
+        user_id: req.app.get('userId'), 
+        creation_date: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        payment_kind: 'Efectivo',
+        total_amount: 0.00,
+        status: 'nuevo',
+        address: req.app.get('userAddress')
+    }
+    //Creo una nueva orden en la DB
+    const order = await pool.query('INSERT INTO orders set ?', [newOrder]);
+    req.orderId =order.insertId;
+    req.app.set('orderId', order.insertId);
+    console.log(req.app.get('orderId'));
+    next();
+}
 
 module.exports = {
     verifyTokenMiddleWare, 
-    isAdmin
+    isAdmin,
+    createNewOrderMiddleWare
 }
 
 

@@ -3,7 +3,7 @@ const router = express.Router(); //del modulo express solo requiero el metodo Ro
 const {verifyTokenMiddleWare, isAdmin} = require('../middlewares/authJwt');
 const {addNewUser, checkUserProvided, showAllUsers, deleteUser, activeUser} = require('../controllers/authentication.controller');
 const {addNewProductToUser, removeProductFromUser, getFavorites} = require('../controllers/productToUser.controller');
-const {userSignUpSchema, userSignInSchema} = require('../middlewares/schemas');
+const {userSignUpSchema, userSignInSchema, favoriteProductSchema} = require('../middlewares/schemas');
 const validateObjectMW = require('../middlewares/validateSchemas');
 const validateResourceMW = require('../middlewares/validateSchemas');
 
@@ -19,14 +19,14 @@ router.post('/signup', validateResourceMW(userSignUpSchema),addNewUser)
 //Endpoint que permite loguearse
 router.post('/signin', validateResourceMW(userSignInSchema),checkUserProvided)
 
-router.post('/add-product-to-user', [verifyTokenMiddleWare], addNewProductToUser)
+router.post('/add-product-to-user', [verifyTokenMiddleWare, validateResourceMW(favoriteProductSchema)], addNewProductToUser)
 
-router.delete('/remove-product-to-user', [verifyTokenMiddleWare], removeProductFromUser)
+router.delete('/remove-product-to-user/:product_id', [verifyTokenMiddleWare], removeProductFromUser)
 
-router.get('/favorites/:id', [verifyTokenMiddleWare], getFavorites)
+router.get('/favorites/:user_id', [verifyTokenMiddleWare], getFavorites)
 
-router.put('/delete/:id',[verifyTokenMiddleWare, isAdmin], deleteUser)
+router.put('/desactive/:user_id',[verifyTokenMiddleWare, isAdmin], deleteUser)
 
-router.put('/active/:id',[verifyTokenMiddleWare, isAdmin], activeUser)
+router.put('/active/:user_id',[verifyTokenMiddleWare, isAdmin], activeUser)
 
 module.exports = router;

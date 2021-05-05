@@ -46,7 +46,7 @@ app.get('/', (req, res) => {
 })
 
 //Routes
-app.use('/user', require('./routes/authentication'));
+app.use('/users', require('./routes/authentication'));
 app.use('/products', require('./routes/products'));
 app.use('/orders', require('./routes/orders'));
 

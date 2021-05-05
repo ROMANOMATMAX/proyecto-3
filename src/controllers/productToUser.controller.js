@@ -6,9 +6,10 @@ const helper = require('../lib/helpers')
 const addNewProductToUser = async (req, res) => {
 
     //Recibo a través del body el id de la orden y el id del producto
-    const {userId, productId} = req.body;
+    const {productId} = req.body;
     const allProductsList = await pool.query('SELECT id FROM products');
     if(helper.findCoincidenceInProductList(allProductsList, productId)){
+        const userId = req.userId;
         const allUserProducts = await pool.query('SELECT product_id FROM producttouser WHERE user_id = ?', [userId]);
         if(helper.findCoincidenceUsers(allUserProducts, productId)){
             res.status(200).json({
@@ -23,7 +24,7 @@ const addNewProductToUser = async (req, res) => {
             }
             const newProductToUser = await pool.query('INSERT INTO  producttouser set ?', [newProductUser]);
             res.status(200).json({
-                productToUserId: newProductToUser.insertId,
+                productToUserId: `You have added the product ${productId} to your profile`,
                 message: 'You have added a product to the user'
             })
         }
@@ -36,23 +37,36 @@ const addNewProductToUser = async (req, res) => {
 
 /***** Funcion que nos permite borrar un producto a la orden ******/
 const removeProductFromUser = async (req, res) => {
-    const {userId, productId} = req.body;
-    const allUserProducts = await pool.query('SELECT product_id FROM producttouser WHERE user_id = ?', [userId]);
-    if(helper.findCoincidenceUsers(allUserProducts, productId)){
-        await pool.query('DELETE FROM producttouser WHERE user_id = ? AND product_id = ?',[userId, productId] );
-        res.status(200).json({
-            message: `You have deleted from favorite the ${productId} product`
-        })
-    }else {
+    console.log(req.userId); //Aca ya tengo el usuario global que esta en sesion
+    const {product_id} = req.params;
+    const isANumber = /^\d+$/.test(product_id);
+    console.log(isANumber);
+    if(isANumber) {
+        const productId = parseInt(product_id);
+        const userId = req.userId;
+        // const {userId, productId} = req.body;
+        const allUserProducts = await pool.query('SELECT product_id FROM producttouser WHERE user_id = ?', [userId]);
+        if(helper.findCoincidenceUsers(allUserProducts, productId)){
+            await pool.query('DELETE FROM producttouser WHERE user_id = ? AND product_id = ?',[userId, productId] );
+            res.status(200).json({
+                message: `You have deleted from favorite the product ${productId}`
+            })
+        }else {
+            res.status(400).json({
+                message: 'This product is not in favorite for this user'
+            })
+        }
+    }else{
         res.status(400).json({
-            message: 'This product is not in favorite for this user'
-        })
+            message: 'Send a number as param'
+        }) 
     }
 }
 
 /*******Funcion para traer los favoritos de un usuario ******/
 const getFavorites = async (req, res) => {
-    const {id} = req.params;
+    const {user_id} = req.params;
+    const id = user_id;
     const isANumber = /^\d+$/.test(id);
     console.log(isANumber);
     if(isANumber) {

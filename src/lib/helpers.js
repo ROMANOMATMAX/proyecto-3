@@ -78,6 +78,18 @@ helper.findCoincidenceInUserList = (list, id) => {
     return match;
 }
 
+helper.findCoincidenceInUserListBodySRC = (list, id) => {
+    const itemId = id;
+    console.log(list);
+    let match = false;
+    list.forEach(item => {
+        if(item.id === itemId) {
+            match = true;
+            return match;
+        }
+    });
+    return match;
+}
 
 module.exports = helper;
 

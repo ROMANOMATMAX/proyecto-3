@@ -9,6 +9,10 @@ const userSignUpSchema = yup.object({
     phone: yup.string(),
     address: yup.string().required(),
     password: yup.string().required("Password is required field"),
+})
+
+const modifyUserRoleSchema = yup.object({
+    userId: yup.number('userId must be a number').integer('userId must be integer').positive('userId must be positive').required('userId is required').strict(),
     role: yup.string().oneOf(['ADMIN', 'COSTUMER', ""])
 })
 
@@ -53,5 +57,6 @@ module.exports = {
     statusOrderModificationSchema,
     lastOrderModificationSchema,
     favoriteProductSchema,
-    orderToProductSchema
+    orderToProductSchema,
+    modifyUserRoleSchema
 }

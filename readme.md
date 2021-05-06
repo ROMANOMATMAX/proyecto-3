@@ -43,16 +43,20 @@ Also take a look to the shared POSTMAN collection.
 
 There is two known users you can use to test the API 
 
-Admin user: 
+Admin Admin user: 
 {
     "email": "agucha9@gmail.com",
     "password": "agusCha12345"
 }
+
+Note: Admin Admin user is the main ADMIN. Is the only person able to change the role of a user to Admin 
 
 Costumer user: 
 {
     "email": "romanomatias99@outlook.com",
     "password": "reptyl.13"
 }
+
+Note: Costumer user is the basic user, means don´t have admin permission
 
 Also if you make a SELECT * FROM products you will get all the product that by default are loaded in products table

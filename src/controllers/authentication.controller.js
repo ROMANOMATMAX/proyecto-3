@@ -29,7 +29,7 @@ const showAllUsers = async (req, res) => {
 /******Funcion para añadir un nuevo user a la DB y otorgarle su token*****/
 const addNewUser = async (req, res) => {
 
-    const { id, username, fullname, email, phone, address, password, token, role } = req.body; //Destructuring a los datos enviados en el body del request
+    const { id, username, fullname, email, phone, address, password} = req.body; //Destructuring a los datos enviados en el body del request
 
     //Antes de añadir un nuevo usuario verifico que no este ya registrado en la base de datos 
 
@@ -55,14 +55,14 @@ const addNewUser = async (req, res) => {
         }
 
          //Mando o no mando role? 
-        if(!role) {
-            console.log("no enviaste el role papa");
-            //Por defecto te asignare el role COSTUMER
-            newUser.role = "COSTUMER";
-        }else {
-            console.log("Si enviaste el role y en teoria deberia ser admin");
-            newUser.role = role;
-        }
+        // if(!role) {
+        //     console.log("no enviaste el role papa");
+        //     //Por defecto te asignare el role COSTUMER
+        newUser.role = "COSTUMER";//Cualquier persona que se cree un usuario sera costumer y solo el admin admin podra hcaerlo tmb admin
+        // }else {
+        //     console.log("Si enviaste el role y en teoria deberia ser admin");
+        //     newUser.role = role;
+        // }
 
         //Antes de insertar el objeto en DB debo encryptar la clave del nuevo usuario
         const salt = await bcrypt.genSalt(10);
@@ -225,10 +225,45 @@ const activeUser = async (req, res) => {
     }
 }
 
+const modifyRoleUser = async (req, res) => {
+    //To this endpoint the un oly who has access is the ADMIN ADMIN we created this user in DB
+    //Pregunto si el que ingreso es el ADMIN ADMIN - En nuestro caso este sera el usuario 26
+    console.log(req.app.get("userId"));
+    if(req.app.get('userId') === 26) {
+        console.log('Ingreso el admin admin');
+        //recuperamos el usuario que se quiere modificar su role
+        const {userId, role} = req.body;
+        const userList = await pool.query('SELECT id FROM users');
+        if(helper.findCoincidenceInUserListBodySRC(userList, userId)){
+            const rows = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
+            const user = rows[0];
+            const modifiedUser = {
+                ...user,
+                role,
+            }
+            await pool.query('UPDATE users set ? WHERE id = ?', [modifiedUser, userId]);
+            res.status(200).json({
+                modifiedUser,
+                message : 'You updated  one user'
+            })
+        }else {
+            res.status(400).json({
+                message: 'The user you want to change role is not in List'
+            })
+        }
+    }else{
+        console.log('No sos el admin admin');
+        res.status(400).json({
+            message: 'Not have permission to this action'
+        })
+    }
+}
+
 module.exports= {
     addNewUser,
     checkUserProvided,
     showAllUsers,
     deleteUser,
-    activeUser
+    activeUser,
+    modifyRoleUser
 }

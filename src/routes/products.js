@@ -24,7 +24,7 @@ router.get('/:product_id',[verifyTokenMiddleWare], getOneProduct)
 router.put('/modify/:product_id', [verifyTokenMiddleWare, isAdmin, validateResourceMW(productSchema)], modifyProduct)
 
 //Endpoint que nos permite borrar un producto de la lista - Solo para Admins
-router.put('/desactive/:product_id', [verifyTokenMiddleWare, isAdmin], deleteProduct)
+router.delete('/desactive/:product_id', [verifyTokenMiddleWare, isAdmin], deleteProduct)
 
 //Endpoint que nos permite borrar un producto de la lista - Solo para Admins
 router.put('/active/:product_id', [verifyTokenMiddleWare, isAdmin], activeProduct)

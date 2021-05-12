@@ -49,7 +49,7 @@ Admin Admin user:
     "password": "agusCha12345"
 }
 
-Note: Admin Admin user is the main ADMIN. Is the only person able to change the role of a user to Admin 
+Note: Admin Admin user is the main ADMIN. Is the only person able to change the role of a user to Admin throught this endpoint localhost:3050/users/roleManager
 
 Costumer user: 
 {

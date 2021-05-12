@@ -25,7 +25,7 @@ router.delete('/remove-product-to-user/:product_id', [verifyTokenMiddleWare], re
 
 router.get('/favorites/:user_id', [verifyTokenMiddleWare], getFavorites)
 
-router.put('/desactive/:user_id',[verifyTokenMiddleWare, isAdmin], deleteUser)
+router.delete('/desactive/:user_id',[verifyTokenMiddleWare, isAdmin], deleteUser)
 
 router.put('/active/:user_id',[verifyTokenMiddleWare, isAdmin], activeUser)
 

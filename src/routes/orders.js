@@ -29,7 +29,7 @@ router.delete('/remove-product-from-order/:product_id', [verifyTokenMiddleWare],
 router.put('/last-modification', [verifyTokenMiddleWare, validateResourceMW(lastOrderModificationSchema)], modifyOrderBeforeConfirmation);
 
 //Endpoint que permite borrar una orden - solo para Admins
-router.put('/:id', [verifyTokenMiddleWare, isAdmin], deleteOrder)
+router.delete('/:id', [verifyTokenMiddleWare, isAdmin], deleteOrder)
 
 //Endpoint que permite añadir un nuevo producto a la orden - solo para Admins
 router.post('/add-product-to-order', [verifyTokenMiddleWare, validateResourceMW(orderToProductSchema)], addNewProductToOrder)

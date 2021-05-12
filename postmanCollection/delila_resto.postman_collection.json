@@ -1,0 +1,728 @@
+{
+	"info": {
+		"_postman_id": "9bfbcd66-a9b5-462c-9660-f75495211ccf",
+		"name": "delila_resto",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "usuarios",
+			"item": [
+				{
+					"name": "Signin user / obtain token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"romanomatias99@outlook.com\",\r\n    \"password\": \"reptyl.13\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3050/users/signin",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"users",
+								"signin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Signup user/ obtain token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 0,\r\n    \"username\": \"romam0816\",\r\n    \"fullname\": \"Romano Matias Maximiliano\",\r\n    \"email\": \"romanomatias99@outlook.com\",\r\n    \"phone\": \"3884137627\",\r\n    \"address\": \"Jose de la Iglesia 1148\",\r\n    \"password\": \"reptyl.13\",\r\n    \"role\": \"student\",\r\n    \"token\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3050/users/signup",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"users",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener todos los usuarios",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3050/users/all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"users",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "desactive user",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3050/users/desactive/30",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"users",
+								"desactive",
+								"30"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Active user",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3050/users/active/30",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"users",
+								"active",
+								"30"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Añadir producto a favoritos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"productId\": 17\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3050/users/add-product-to-user",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"users",
+								"add-product-to-user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remover de favoritos",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3050/users/remove-product-to-user/2",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"users",
+								"remove-product-to-user",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener todos los favoritos de un user",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3050/users/favorites/8",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"users",
+								"favorites",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Role manager",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": null
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "productos",
+			"item": [
+				{
+					"name": "Agregar un producto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"1221\",\r\n    \"photo\": \"\"\r\n}   ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3050/products/add",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"products",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify a product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Guisado\",\r\n    \"description\": \"Carne, papa, zanahoria, arvejas y fideo hervido en salsa de tomate\",\r\n    \"price\": 250.00,\r\n    \"photo\": \"\"\r\n}   ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3050/products/modify/25h",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"products",
+								"modify",
+								"25h"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Desactive a product",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3050/products/desactive/30",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"products",
+								"desactive",
+								"30"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Active a product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3050/products/active/7",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"products",
+								"active",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener todos los productos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3050/products/all",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"products",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener un producto por id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3050/products/11",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"products",
+								"11"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ordenes",
+			"item": [
+				{
+					"name": "New order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjYsImlhdCI6MTYxOTQ0MjYxMSwiZXhwIjoxNjE5NTI5MDExfQ.eD1P_q6QrxEGrX-v9sLjkgOibhGuutAlrr2TzXj2N9w",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3050/orders/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify order status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newStatus\" : \"musica\",\r\n    \"orderId\": \"39\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3050/orders/modify-status",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"modify-status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener todas las ordenes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3050/orders/all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener una orden",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3050/orders/9aace",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"9aace"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify for last time the order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"address\": \"Jose de la Iglesia 1148\",\r\n    \"payment_kind\": \"Credito\",\r\n    \"orderId\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3050/orders//last-modification",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"",
+								"last-modification"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Borrar orden",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3050/orders/26",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"26"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Active an order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3050/orders/active/25",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"active",
+								"25"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "productosToOrden",
+			"item": [
+				{
+					"name": "Remove a product from order",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"orderId\": 36,\r\n    \"productId\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3050/orders/remove-product-from-order",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"remove-product-from-order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Agregar un producto a la orden",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"orderId\": 16,\r\n    \"productId\": 11\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3050/orders/add-product-to-order",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3050",
+							"path": [
+								"orders",
+								"add-product-to-order"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
